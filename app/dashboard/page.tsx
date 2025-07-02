@@ -1,21 +1,41 @@
+// app/dashboard/page.tsx
+
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Sidebar from '@/components/Sidebar';
+import BlogPosts from '@/components/BlogPosts';
+import NewsPosts from '@/components/NewsPost';
 
 export default function Dashboard() {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState('home');
 
-  // useEffect(() => {
-  //   const loggedIn = localStorage.getItem('isLoggedIn');
-  //   if (loggedIn !== 'true') {
-  //     router.push('/login');
-  //   }
-  // }, [router]);
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('isLoggedIn');
+    if (loggedIn !== 'true') {
+      router.push('/login');
+    }
+  }, [router]);
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'home':
+        return <h1 className="text-3xl font-semibold">Welcome to your Dashboard 🎉</h1>;
+      case 'blog':
+        return <BlogPosts />;
+      case 'news':
+        return <NewsPosts />;
+      default:
+        return <h1 className="text-2xl font-semibold">Welcome!</h1>;
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-green-100">
-      <h1 className="text-3xl font-semibold">Welcome to your Dashboard 🎉</h1>
+    <div className="min-h-screen flex bg-gray-50 dark:bg-[#0d1117] text-black dark:text-white">
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <main className="flex-1 p-8">{renderContent()}</main>
     </div>
   );
 }

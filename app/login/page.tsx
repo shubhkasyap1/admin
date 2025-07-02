@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTheme } from 'next-themes';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -10,7 +10,7 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email || !password) {
@@ -18,17 +18,38 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
       return;
     }
 
-    if (email === 'admin@example.com' && password === 'admin123') {
-      toast.success('Login successful 🎉');
+    try {
+      const res = await fetch('http://localhost:8000/api/v1/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        toast.error(data?.message || 'Login failed');
+        return;
+      }
+
+      // ✅ Store user info and tokens
       localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('accessToken', data.info.accessToken);
+      localStorage.setItem('refreshToken', data.info.refreshToken);
+      localStorage.setItem('user', JSON.stringify(data.info.user));
+
+      toast.success(data.message || 'Login successful 🎉');
 
       if (onLogin) {
-        onLogin(); // Use prop method
+        onLogin(); // Callback for optional prop
       } else {
-        window.location.href = '/dashboard'; // fallback for direct route use
+        window.location.href = '/dashboard'; // Navigate to dashboard
       }
-    } else {
-      toast.error('Invalid email or password');
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('Something went wrong. Please try again.');
     }
   };
 

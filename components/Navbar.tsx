@@ -2,85 +2,134 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Sun, Moon } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { useRouter } from 'next/navigation';
+import { Sun, Moon, UserCircle, LogOut, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, useScroll } from 'framer-motion';
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const { scrollY } = useScroll();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    return scrollY.onChange(() => {
-      setScrolled(scrollY.get() > 10);
-    });
-  }, [scrollY]);
+    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(loggedIn);
+
+    if (loggedIn) {
+      const user = localStorage.getItem('user');
+      if (user) {
+        try {
+          const parsed = JSON.parse(user);
+          setUserEmail(parsed.email || '');
+        } catch (err) {
+          console.error('Invalid user data');
+        }
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    setIsLoggedIn(false);
+    router.push('/login');
+  };
 
   if (!mounted) return null;
 
   return (
-    <motion.header
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
+    <header
       className={cn(
-        'sticky top-0 z-50 w-full backdrop-blur-md',
-        scrolled
-          ? theme === 'dark'
-            ? 'bg-[#010409]/80 text-gray-100 shadow-lg shadow-black/30'
-            : 'bg-white/90 text-gray-900 shadow-lg shadow-gray-300/30'
-          : theme === 'dark'
-          ? 'bg-transparent text-gray-100'
-          : 'bg-transparent text-gray-900'
+        'fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-6 shadow-md transition-all',
+        theme === 'dark'
+          ? 'bg-[#0d1117] text-white shadow-black/40'
+          : 'bg-white text-black shadow-gray-200'
       )}
     >
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="text-xl font-bold hover:opacity-90 transition">
-            GharPadharo
-          </Link>
+      <Link href="/" className="text-xl font-bold hover:opacity-80">
+        GharPadharo Admin
+      </Link>
 
-          {/* Right Controls: Language + Theme */}
-          <div className="flex items-center gap-3">
-            {/* Language Selector */}
-            <select
-              className={cn(
-                'px-3 py-2 rounded border transition text-sm font-medium',
-                theme === 'dark'
-                  ? 'bg-gray-800 border-gray-700 text-white hover:bg-gray-700'
-                  : 'bg-gray-100 border-gray-200 text-gray-900 hover:bg-gray-200'
-              )}
-              defaultValue="en"
-              onChange={(e) => alert(`Language changed to ${e.target.value}`)}
-            >
-              <option value="en">English</option>
-              <option value="hi">हिन्दी</option>
-              <option value="mr">मराठी</option>
-              <option value="gu">ગુજરાતી</option>
-              <option value="bn">বাংলা</option>
-            </select>
+      <div className="flex items-center gap-3 relative">
+        {/* Language Selector */}
+        <select
+          className={cn(
+            'px-3 py-1 rounded text-sm font-medium border',
+            theme === 'dark'
+              ? 'bg-gray-800 border-gray-700 text-white'
+              : 'bg-gray-100 border-gray-300 text-black'
+          )}
+          defaultValue="en"
+          onChange={(e) => alert(`Language changed to ${e.target.value}`)}
+        >
+          <option value="en">English</option>
+          <option value="hi">हिन्दी</option>
+          <option value="mr">मराठी</option>
+          <option value="gu">ગુજરાતી</option>
+          <option value="bn">বাংলা</option>
+        </select>
 
-            {/* Theme Toggle */}
+        {/* Theme Toggle */}
+        <button
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          className={cn(
+            'px-3 py-1 rounded border transition',
+            theme === 'dark'
+              ? 'bg-gray-800 border-gray-700 text-white'
+              : 'bg-gray-100 border-gray-300 text-black'
+          )}
+        >
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+
+        {/* User Dropdown — Show only if logged in */}
+        {isLoggedIn && userEmail && (
+          <div className="relative">
             <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              onClick={() => setDropdownOpen(!dropdownOpen)}
               className={cn(
-                'px-3 py-2 rounded transition flex items-center gap-2 border',
+                'flex items-center gap-2 px-3 py-1 rounded border transition',
                 theme === 'dark'
                   ? 'bg-gray-800 border-gray-700 text-white hover:bg-gray-700'
-                  : 'bg-gray-100 border-gray-200 text-gray-900 hover:bg-gray-200'
+                  : 'bg-gray-100 border-gray-300 text-black hover:bg-gray-200'
               )}
-              aria-label="Toggle theme"
             >
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              <UserCircle size={18} />
+              <span className="hidden sm:inline text-sm font-medium">{userEmail.split('@')[0]}</span>
+              <ChevronDown size={14} />
             </button>
+
+            {/* Dropdown menu */}
+            {dropdownOpen && (
+              <div
+                className={cn(
+                  'absolute right-0 mt-2 w-40 rounded-md shadow-lg py-2 z-50',
+                  theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black border border-gray-200'
+                )}
+              >
+                <button
+                  onClick={() => router.push('/profile')}
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-700 hover:text-white dark:hover:bg-gray-700"
+                >
+                  <UserCircle size={14} className="inline mr-2" />
+                  Profile
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-red-100 dark:hover:bg-red-600 dark:hover:text-white"
+                >
+                  <LogOut size={14} className="inline mr-2" />
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
-        </div>
+        )}
       </div>
-    </motion.header>
+    </header>
   );
 }

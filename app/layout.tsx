@@ -1,7 +1,10 @@
+// app/layout.tsx
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
+import Navbar from "@/components/Navbar"; // ✅ Import the shared Navbar
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +32,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
+          <Navbar /> {/* ✅ Global fixed Navbar */}
+          <div className="pt-16"> {/* ✅ Padding to avoid hiding behind navbar */}
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>
