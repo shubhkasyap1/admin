@@ -7,10 +7,12 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import BlogPosts from '@/components/BlogPosts';
 import NewsPosts from '@/components/NewsPost';
+import BlogDetails, { Blog } from "@/components/BlogDetails";
 
 export default function Dashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('home');
+  const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
 
   useEffect(() => {
     const loggedIn = localStorage.getItem('isLoggedIn');
@@ -24,7 +26,22 @@ export default function Dashboard() {
       case 'home':
         return <h1 className="text-3xl font-semibold">Welcome to your Dashboard 🎉</h1>;
       case 'blog':
-        return <BlogPosts />;
+        return (
+          <BlogPosts
+            onBlogSelect={(blog) => {
+              setSelectedBlog(blog);
+              setActiveTab('blog-details');
+            }}
+          />
+        );
+      case 'blog-details':
+        return (
+          <BlogDetails
+            isOpen={true}
+            blog={selectedBlog}
+            onClose={() => setActiveTab('blog')}
+          />
+        );
       case 'news':
         return <NewsPosts />;
       default:

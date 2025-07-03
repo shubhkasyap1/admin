@@ -34,21 +34,25 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
         return;
       }
 
-      // ✅ Store user info and tokens
+      // ✅ Logging for Debugging
+      console.log('✅ Login Success:', data);
+
+      // ✅ Store tokens and user info
       localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('accessToken', data.info.accessToken);
-      localStorage.setItem('refreshToken', data.info.refreshToken);
-      localStorage.setItem('user', JSON.stringify(data.info.user));
+      localStorage.setItem('accessToken', data.info?.accessToken || '');
+      localStorage.setItem('refreshToken', data.info?.refreshToken || '');
+      localStorage.setItem('user', JSON.stringify(data.info?.user || {}));
 
       toast.success(data.message || 'Login successful 🎉');
 
+      // ✅ Callback or Redirect
       if (onLogin) {
-        onLogin(); // Callback for optional prop
+        onLogin();
       } else {
-        window.location.href = '/dashboard'; // Navigate to dashboard
+        window.location.href = '/dashboard';
       }
-    } catch (error) {
-      console.error('Login error:', error);
+    } catch (error: any) {
+      console.error('❌ Login Error:', error);
       toast.error('Something went wrong. Please try again.');
     }
   };
@@ -59,7 +63,7 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
         theme === 'dark' ? 'bg-[#010409] text-white' : 'bg-gray-100 text-gray-900'
       }`}
     >
-      {/* Left Illustration */}
+      {/* Illustration */}
       <motion.div
         initial={{ opacity: 0, x: -60 }}
         animate={{ opacity: 1, x: 0 }}
@@ -75,7 +79,7 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
         </div>
       </motion.div>
 
-      {/* Right Login Form */}
+      {/* Login Form */}
       <motion.div
         initial={{ opacity: 0, x: 60 }}
         animate={{ opacity: 1, x: 0 }}
