@@ -8,6 +8,7 @@ import Sidebar from '@/components/Sidebar';
 import BlogPosts from '@/components/BlogPosts';
 import NewsPosts from '@/components/NewsPost';
 import BlogDetails, { Blog } from "@/components/BlogDetails";
+import PodcastPost from '@/components/PodcastPost'; 
 
 export default function Dashboard() {
   const router = useRouter();
@@ -44,6 +45,8 @@ export default function Dashboard() {
         );
       case 'news':
         return <NewsPosts />;
+      case 'podcasts':
+        return <PodcastPost />;
       default:
         return <h1 className="text-2xl font-semibold">Welcome!</h1>;
     }

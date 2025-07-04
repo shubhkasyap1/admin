@@ -25,6 +25,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           { id: 'home', label: 'Home' },
           { id: 'blog', label: 'Blog Posts' },
           { id: 'news', label: 'News Posts' },
+          { id: 'podcasts', label: 'Podcasts Posts' },
         ].map(({ id, label }) => (
           <li key={id}>
             <button
