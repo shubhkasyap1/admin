@@ -1,28 +1,28 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useTheme } from 'next-themes';
-import { motion } from 'framer-motion';
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import { useTheme } from "next-themes";
+import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 export default function Login({ onLogin }: { onLogin?: () => void }) {
   const { theme } = useTheme();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email || !password) {
-      toast.error('Please fill in all fields');
+      toast.error("Please fill in all fields");
       return;
     }
 
     try {
-      const res = await fetch('http://localhost:8000/api/v1/users/login', {
-        method: 'POST',
+      const res = await fetch("http://localhost:8000/api/v1/users/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
@@ -30,44 +30,48 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        toast.error(data?.message || 'Login failed');
+        toast.error(data?.message || "Login failed");
         return;
       }
 
       // ✅ Logging for Debugging
-      console.log('✅ Login Success:', data);
+      console.log("✅ Login Success:", data);
 
       // ✅ Store tokens and user info
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('accessToken', data.info?.accessToken || '');
-      localStorage.setItem('refreshToken', data.info?.refreshToken || '');
-      localStorage.setItem('user', JSON.stringify(data.info?.user || {}));
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("accessToken", data.info?.accessToken || "");
+      localStorage.setItem("refreshToken", data.info?.refreshToken || "");
+      localStorage.setItem("user", JSON.stringify(data.info?.user || {}));
+      localStorage.setItem("accessToken", data.info.accessToken);
+      localStorage.setItem("refreshToken", data.info.refreshToken);
 
-      toast.success(data.message || 'Login successful 🎉');
+      toast.success(data.message || "Login successful 🎉");
 
       // ✅ Callback or Redirect
       if (onLogin) {
         onLogin();
       } else {
-        window.location.href = '/dashboard';
+        window.location.href = "/dashboard";
       }
     } catch (error: any) {
-      console.error('❌ Login Error:', error);
-      toast.error('Something went wrong. Please try again.');
+      console.error("❌ Login Error:", error);
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
   return (
     <div
       className={`min-h-screen flex flex-col md:flex-row transition-colors duration-300 ${
-        theme === 'dark' ? 'bg-[#010409] text-white' : 'bg-gray-100 text-gray-900'
+        theme === "dark"
+          ? "bg-[#010409] text-white"
+          : "bg-gray-100 text-gray-900"
       }`}
     >
       {/* Illustration */}
       <motion.div
         initial={{ opacity: 0, x: -60 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
         className="w-full md:w-1/2 flex items-center justify-center p-6 bg-gradient-to-br"
       >
         <div className="text-center px-6">
@@ -83,7 +87,7 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
       <motion.div
         initial={{ opacity: 0, x: 60 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
         className="w-full md:w-1/2 flex items-center justify-center p-10"
       >
         <motion.form
@@ -92,9 +96,9 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
           className={`w-full min-h-[500px] max-w-xl p-10 rounded-xl shadow-2xl border transition ${
-            theme === 'dark'
-              ? 'bg-gray-900 border-gray-800'
-              : 'bg-white border-gray-200'
+            theme === "dark"
+              ? "bg-gray-900 border-gray-800"
+              : "bg-white border-gray-200"
           }`}
         >
           <h2 className="text-4xl font-bold mb-8 text-center">Login</h2>
@@ -105,9 +109,9 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
               type="email"
               placeholder="Enter your email"
               className={`w-full px-5 py-4 rounded-lg border outline-none transition text-base ${
-                theme === 'dark'
-                  ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:ring focus:ring-blue-500'
-                  : 'bg-gray-100 border-gray-300 text-gray-900 placeholder-gray-500 focus:ring focus:ring-blue-500'
+                theme === "dark"
+                  ? "bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:ring focus:ring-blue-500"
+                  : "bg-gray-100 border-gray-300 text-gray-900 placeholder-gray-500 focus:ring focus:ring-blue-500"
               }`}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -121,9 +125,9 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
               type="password"
               placeholder="Enter your password"
               className={`w-full px-5 py-4 rounded-lg border outline-none transition text-base ${
-                theme === 'dark'
-                  ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:ring focus:ring-blue-500'
-                  : 'bg-gray-100 border-gray-300 text-gray-900 placeholder-gray-500 focus:ring focus:ring-blue-500'
+                theme === "dark"
+                  ? "bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:ring focus:ring-blue-500"
+                  : "bg-gray-100 border-gray-300 text-gray-900 placeholder-gray-500 focus:ring focus:ring-blue-500"
               }`}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -135,9 +139,9 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
             whileTap={{ scale: 0.98 }}
             type="submit"
             className={`w-full py-4 rounded-lg font-semibold text-lg transition ${
-              theme === 'dark'
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
+              theme === "dark"
+                ? "bg-blue-600 hover:bg-blue-700 text-white"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
             }`}
           >
             Login

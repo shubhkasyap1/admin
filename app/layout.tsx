@@ -1,10 +1,9 @@
-// app/layout.tsx
-
+// ✅ NO 'use client' here
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
-import Navbar from "@/components/Navbar"; // ✅ Import the shared Navbar
+import Navbar from "@/components/Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,19 +22,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Navbar /> {/* ✅ Global fixed Navbar */}
-          <div className="pt-16"> {/* ✅ Padding to avoid hiding behind navbar */}
-            {children}
-          </div>
+          <Navbar />
+          <div className="pt-16">{children}</div>
         </ThemeProvider>
       </body>
     </html>

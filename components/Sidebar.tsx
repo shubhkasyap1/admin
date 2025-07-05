@@ -1,7 +1,6 @@
-// app/dashboard/components/Sidebar.tsx
-
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 
 interface SidebarProps {
@@ -11,6 +10,14 @@ interface SidebarProps {
 
 export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null; // ⛔ Prevent hydration mismatch
+
   const isDark = theme === 'dark';
 
   return (
