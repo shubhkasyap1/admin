@@ -16,7 +16,7 @@ interface Podcast {
 
 interface Props {
   podcast: Podcast;
-  onBack: () => void; // ✅ Renamed from onClose
+  onBack: () => void;
   onEdit: () => void;
   onDeleteSuccess: () => void;
 }
@@ -28,7 +28,6 @@ export default function PodcastDetail({
   onDeleteSuccess,
 }: Props) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
@@ -49,17 +48,13 @@ export default function PodcastDetail({
       if (data.success) {
         toast.success('Podcast deleted');
         onDeleteSuccess();
-        onBack(); // ✅ go back after deletion
+        onBack();
       } else {
         toast.error(data.message || 'Failed to delete');
       }
     } catch (err) {
       toast.error('Server error');
     }
-  };
-
-  const handleEdit = () => {
-    onEdit(); // ✅ Triggers edit
   };
 
   return (
@@ -99,7 +94,7 @@ export default function PodcastDetail({
       {/* 🔘 Action Buttons */}
       <div className="flex gap-4 mt-6">
         <button
-          onClick={() => setShowEditDialog(true)}
+          onClick={onEdit}
           className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
         >
           ✏️ Edit
@@ -111,15 +106,6 @@ export default function PodcastDetail({
           🗑️ Delete
         </button>
       </div>
-
-      {/* 🟡 Edit Confirmation */}
-      <ConfirmDialog
-        open={showEditDialog}
-        onCancel={() => setShowEditDialog(false)}
-        onConfirm={handleEdit}
-        title="Edit this podcast?"
-        description="You’ll be able to update its title, image, URL, and more."
-      />
 
       {/* 🔴 Delete Confirmation */}
       <ConfirmDialog

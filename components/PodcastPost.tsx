@@ -1,4 +1,3 @@
-// app/(dashboard)/podcast/page.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -13,7 +12,7 @@ export type Podcast = {
   tag: string;
   date: string;
   url: string;
-  image: string;
+  image: string; // imageUrl will be mapped to this
 };
 
 export default function PodcastPost() {
@@ -34,9 +33,18 @@ export default function PodcastPost() {
           Authorization: `Bearer ${token}`,
         },
       });
+
       const data = await res.json();
       if (data.success) {
-        setPodcasts(data.info || []);
+        const updated = data.info.map((item: any) => ({
+          _id: item._id,
+          title: item.title,
+          tag: item.tag,
+          date: item.date,
+          url: item.url,
+          image: `http://localhost:8000${item.imageUrl}`,
+        }));
+        setPodcasts(updated);
       } else {
         toast.error(data.message || 'Failed to fetch podcasts');
       }
@@ -129,22 +137,33 @@ export default function PodcastPost() {
                 <div
                   key={podcast._id}
                   onClick={() => setSelectedPodcast(podcast)}
-                  className={`cursor-pointer rounded-xl p-4 shadow-md border transition-transform hover:scale-105 ${
+                  className={`relative rounded-xl p-4 shadow-md border transition-transform hover:scale-105 cursor-pointer ${
                     isDark
                       ? 'bg-gray-800 text-white border-gray-700'
                       : 'bg-white text-black border border-gray-200'
                   }`}
                 >
-                  <img
-                    src={podcast.image}
-                    alt={podcast.title}
-                    className="w-full h-40 object-cover rounded mb-3"
-                  />
+                  {/* Image with Play Button */}
+                  <div className="relative w-full h-40 mb-3 rounded overflow-hidden">
+                    <img
+                      src={podcast.image}
+                      alt={podcast.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(podcast.url, '_blank');
+                      }}
+                      className="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-3xl font-bold hover:bg-black/60 transition"
+                    >
+                      ▶️
+                    </button>
+                  </div>
+
                   <h3 className="text-lg font-bold">{podcast.title}</h3>
                   <p className="text-sm text-gray-400">{podcast.tag}</p>
-                  <p className="text-sm">
-                    {new Date(podcast.date).toLocaleDateString()}
-                  </p>
+                  <p className="text-sm">{new Date(podcast.date).toLocaleDateString()}</p>
                 </div>
               ))}
             </div>
