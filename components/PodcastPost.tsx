@@ -5,7 +5,7 @@ import { toast, Toaster } from 'sonner';
 import { useTheme } from 'next-themes';
 import PodcastForm from '@/components/PodcastForm';
 import PodcastDetail from '@/components/PodcastDetail';
-import Loader from '@/components/ui/Loader'; // ✅ Import loader
+import Loader from '@/components/ui/Loader';
 
 export type Podcast = {
   _id: string;
@@ -16,9 +16,11 @@ export type Podcast = {
   image: string;
 };
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function PodcastPost() {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
-  const [loading, setLoading] = useState(true); // ✅ Loading state
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [selectedPodcast, setSelectedPodcast] = useState<Podcast | null>(null);
   const [editPodcast, setEditPodcast] = useState<Podcast | null>(null);
@@ -26,10 +28,10 @@ export default function PodcastPost() {
   const isDark = theme === 'dark';
 
   const fetchPodcasts = async () => {
-    setLoading(true); // ✅ Start loader
+    setLoading(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const res = await fetch('http://localhost:8000/api/v1/podcasts', {
+      const res = await fetch(`${API_BASE}/podcasts`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -45,7 +47,7 @@ export default function PodcastPost() {
           tag: item.tag,
           date: item.date,
           url: item.url,
-          image: `http://localhost:8000${item.imageUrl}`,
+          image: `${process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '')}${item.imageUrl}`,
         }));
         setPodcasts(updated);
       } else {
@@ -55,7 +57,7 @@ export default function PodcastPost() {
       console.error('Error fetching podcasts:', error);
       toast.error('Server error while fetching podcasts');
     } finally {
-      setLoading(false); // ✅ End loader
+      setLoading(false);
     }
   };
 
@@ -98,7 +100,7 @@ export default function PodcastPost() {
           }}
         />
       ) : loading ? (
-        <Loader type="card" /> // ✅ Show loader while fetching
+        <Loader type="card" />
       ) : (
         <>
           {/* Header Cards */}

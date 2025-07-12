@@ -34,15 +34,15 @@ export default function PodcastDetail({
   const handleDelete = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const res = await fetch(
-        `http://localhost:8000/api/v1/podcasts/${podcast._id}`,
-        {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+      const res = await fetch(`${API_BASE}/podcasts/${podcast._id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       const data = await res.json();
 
       if (data.success) {

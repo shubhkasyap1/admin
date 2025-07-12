@@ -31,7 +31,8 @@ export default function PodcastForm({ onClose, onSuccess, existing }: PodcastFor
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const isEdit = Boolean(existing);
 
-  // 🔄 Update preview when imageFile changes
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
   useEffect(() => {
     if (imageFile) {
       const reader = new FileReader();
@@ -62,21 +63,19 @@ export default function PodcastForm({ onClose, onSuccess, existing }: PodcastFor
       body.append('tag', formData.tag);
       body.append('date', formData.date);
       body.append('url', formData.url);
-
       if (imageFile) {
         body.append('image', imageFile);
       }
 
-      const res = await fetch(
-        `http://localhost:8000/api/v1/podcasts${isEdit ? `/${existing?._id}` : ''}`,
-        {
-          method: isEdit ? 'PUT' : 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body,
-        }
-      );
+      const endpoint = isEdit ? `/podcasts/${existing?._id}` : '/podcasts';
+
+      const res = await fetch(`${API_BASE}${endpoint}`, {
+        method: isEdit ? 'PUT' : 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body,
+      });
 
       const data = await res.json();
 
@@ -142,7 +141,6 @@ export default function PodcastForm({ onClose, onSuccess, existing }: PodcastFor
             required={!isEdit}
           />
 
-          {/* 🖼️ Image Preview */}
           {previewUrl && (
             <img
               src={previewUrl}
@@ -170,7 +168,6 @@ export default function PodcastForm({ onClose, onSuccess, existing }: PodcastFor
         </form>
       </div>
 
-      {/* 🔒 Confirm Update Dialog */}
       {isEdit && (
         <ConfirmDialog
           open={showUpdateDialog}

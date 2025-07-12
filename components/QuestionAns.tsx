@@ -12,6 +12,8 @@ type QnA = {
   answer: string;
 };
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 const QuestionAns = () => {
   const [qnas, setQnas] = useState<QnA[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -23,7 +25,7 @@ const QuestionAns = () => {
   const fetchQnA = async () => {
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch("http://localhost:8000/api/v1/questions", {
+      const res = await fetch(`${API_BASE}/questions`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -46,7 +48,7 @@ const QuestionAns = () => {
   const performDelete = async (id: string) => {
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch(`http://localhost:8000/api/v1/questions/${id}`, {
+      const res = await fetch(`${API_BASE}/questions/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -152,7 +154,7 @@ const QuestionAns = () => {
               defaultData={editItem}
               onSuccess={() => {
                 if (editItem) {
-                  setPendingUpdate(true); // show confirm dialog
+                  setPendingUpdate(true);
                 } else {
                   toast.success("Question created successfully!");
                   fetchQnA();

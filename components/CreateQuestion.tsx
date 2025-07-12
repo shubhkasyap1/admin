@@ -34,9 +34,10 @@ const CreateQuestion = ({ onSuccess, onClose, defaultData }: Props) => {
       return;
     }
 
+    const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
     const url = isEdit
-      ? `http://localhost:8000/api/v1/questions/${defaultData?._id}`
-      : "http://localhost:8000/api/v1/questions";
+      ? `${API_BASE}/questions/${defaultData?._id}`
+      : `${API_BASE}/questions`;
 
     const method = isEdit ? "PUT" : "POST";
 
