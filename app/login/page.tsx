@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useTheme } from 'next-themes';
-import { Toaster, toast } from 'sonner';
-import { Mail, Lock } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
+import { Toaster, toast } from "sonner";
+import { Mail, Lock } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { jwtDecode } from "jwt-decode";
-import logo from '@/public/logo.png';
+import logo from "@/public/logo.png";
 
 interface DecodedToken {
   exp: number;
@@ -14,21 +14,21 @@ interface DecodedToken {
 
 export default function Login({ onLogin }: { onLogin?: () => void }) {
   const { theme } = useTheme();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shake, setShake] = useState(false);
 
   // 🔁 Auto-redirect if already logged in with a valid token
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem("accessToken");
     if (token) {
       try {
         const decoded: DecodedToken = jwtDecode(token);
         const now = Math.floor(Date.now() / 1000);
         if (decoded.exp > now) {
-          window.location.href = '/dashboard';
+          window.location.href = "/dashboard";
         }
       } catch {
         localStorage.clear();
@@ -41,36 +41,39 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
     setLoading(true);
 
     if (!email || !password) {
-      toast.error('Please fill in all fields');
+      toast.error("Please fill in all fields");
       triggerShake();
       return;
     }
 
     try {
-      const res = await fetch('http://localhost:8000/api/v1/users/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        toast.error(data?.message || 'Login failed');
+        toast.error(data?.message || "Login failed");
         triggerShake();
         return;
       }
 
       // ✅ Store tokens and user
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('accessToken', data.info.accessToken);
-      localStorage.setItem('refreshToken', data.info.refreshToken);
-      localStorage.setItem('user', JSON.stringify(data.info.user));
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("accessToken", data.info.accessToken);
+      localStorage.setItem("refreshToken", data.info.refreshToken);
+      localStorage.setItem("user", JSON.stringify(data.info.user));
 
-      toast.success(data.message || 'Login successful 🎉');
-      onLogin ? onLogin() : (window.location.href = '/dashboard');
+      toast.success(data.message || "Login successful 🎉");
+      onLogin ? onLogin() : (window.location.href = "/dashboard");
     } catch (error) {
-      console.error('Login error:', error);
-      toast.error('Something went wrong. Please try again.');
+      console.error("Login error:", error);
+      toast.error("Something went wrong. Please try again.");
       triggerShake();
     } finally {
       setLoading(false);
@@ -86,7 +89,9 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
   return (
     <div
       className={`min-h-screen flex flex-col md:flex-row items-center justify-center transition-colors duration-300 px-6 relative ${
-        theme === 'dark' ? 'bg-[#121212] text-white' : 'bg-[#f4f6f8] text-gray-900'
+        theme === "dark"
+          ? "bg-[#121212] text-white"
+          : "bg-[#f4f6f8] text-gray-900"
       }`}
     >
       {/* Background blur */}
@@ -106,9 +111,9 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
         <form
           onSubmit={handleLogin}
           className={`w-full max-w-md md:max-w-lg xl:max-w-xl p-10 rounded-2xl backdrop-blur-lg shadow-2xl border transition ${
-            theme === 'dark'
-              ? 'bg-gray-900/80 border-gray-800'
-              : 'bg-white/80 border-gray-200'
+            theme === "dark"
+              ? "bg-gray-900/80 border-gray-800"
+              : "bg-white/80 border-gray-200"
           }`}
         >
           <div className="mb-10 text-center">
@@ -132,9 +137,9 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
                 placeholder="you@example.com"
                 autoFocus
                 className={`w-full pl-12 pr-4 py-3 rounded-xl border text-base outline-none shadow-sm transition ${
-                  theme === 'dark'
-                    ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500'
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500'
+                  theme === "dark"
+                    ? "bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
+                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500"
                 }`}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -153,9 +158,9 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
                 type="password"
                 placeholder="••••••••"
                 className={`w-full pl-12 pr-4 py-3 rounded-xl border text-base outline-none shadow-sm transition ${
-                  theme === 'dark'
-                    ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500'
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500'
+                  theme === "dark"
+                    ? "bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
+                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500"
                 }`}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -174,7 +179,10 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
               />
               <span>Remember me</span>
             </label>
-            <a href="/forgot-password" className="text-blue-500 hover:underline">
+            <a
+              href="/forgot-password"
+              className="text-blue-500 hover:underline"
+            >
               Forgot Password?
             </a>
           </div>
@@ -182,7 +190,7 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
           {/* Submit Button with Shake Animation */}
           <AnimatePresence>
             <motion.div
-              key={shake ? 'shake' : 'no-shake'}
+              key={shake ? "shake" : "no-shake"}
               animate={shake ? { x: [-10, 10, -8, 8, -4, 4, 0] } : {}}
               transition={{ duration: 0.4 }}
             >
@@ -214,7 +222,7 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
                     />
                   </svg>
                 ) : (
-                  'Login'
+                  "Login"
                 )}
               </motion.button>
             </motion.div>
@@ -224,7 +232,7 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
           <div className="mt-8 text-center text-sm">
             <span className="text-gray-600 dark:text-gray-400">
               Don&apos;t have an account?
-            </span>{' '}
+            </span>{" "}
             <a
               href="/signup"
               className="text-blue-600 font-medium hover:underline transition-all duration-200"

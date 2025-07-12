@@ -31,7 +31,7 @@ export default function BlogPosts({ onBlogSelect }: BlogPostsProps) {
     setLoading(true);
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch("http://localhost:8000/api/v1/blogs/", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/blogs`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -62,6 +62,7 @@ export default function BlogPosts({ onBlogSelect }: BlogPostsProps) {
       animate={{ opacity: 1 }}
       transition={{ delay: 0.2 }}
     >
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

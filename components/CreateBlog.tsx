@@ -1,4 +1,3 @@
-// components/CreateBlogModal.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -47,7 +46,7 @@ export default function CreateBlogModal({ isOpen, onClose, onBlogCreated }: Prop
       formData.append('image', imageFile);
 
       const accessToken = localStorage.getItem('accessToken');
-      const res = await fetch('http://localhost:8000/api/v1/blogs/', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/blogs/`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -88,45 +87,87 @@ export default function CreateBlogModal({ isOpen, onClose, onBlogCreated }: Prop
             exit={{ y: 50, opacity: 0 }}
             transition={{ duration: 0.3 }}
             className={`w-full max-w-xl rounded-xl p-6 shadow-lg border ${
-              theme === 'dark' ? 'bg-gray-900 border-gray-800 text-white' : 'bg-white border-gray-200 text-black'
+              theme === 'dark'
+                ? 'bg-gray-900 border-gray-800 text-white'
+                : 'bg-white border-gray-200 text-black'
             }`}
           >
             <h2 className="text-2xl font-bold mb-4">Create Blog</h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)}
+              <input
+                type="text"
+                placeholder="Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 className={`w-full px-4 py-3 rounded-lg border ${
-                  theme === 'dark' ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-100 border-gray-300 text-black'
-                }`} />
+                  theme === 'dark'
+                    ? 'bg-gray-800 border-gray-700 text-white'
+                    : 'bg-gray-100 border-gray-300 text-black'
+                }`}
+              />
 
-              <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)}
+              <textarea
+                placeholder="Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 className={`w-full px-4 py-3 rounded-lg border ${
-                  theme === 'dark' ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-100 border-gray-300 text-black'
-                }`} rows={4} />
+                  theme === 'dark'
+                    ? 'bg-gray-800 border-gray-700 text-white'
+                    : 'bg-gray-100 border-gray-300 text-black'
+                }`}
+                rows={4}
+              />
 
-              <input type="text" placeholder="Category" value={category} onChange={(e) => setCategory(e.target.value)}
+              <input
+                type="text"
+                placeholder="Category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
                 className={`w-full px-4 py-3 rounded-lg border ${
-                  theme === 'dark' ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-100 border-gray-300 text-black'
-                }`} />
+                  theme === 'dark'
+                    ? 'bg-gray-800 border-gray-700 text-white'
+                    : 'bg-gray-100 border-gray-300 text-black'
+                }`}
+              />
 
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                className={`w-full px-4 py-3 rounded-lg border file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold
-                  ${
-                    theme === 'dark'
-                      ? 'bg-gray-800 border-gray-700 text-white file:bg-blue-600 file:text-white hover:file:bg-blue-700'
-                      : 'bg-gray-100 border-gray-300 text-black file:bg-blue-600 file:text-white hover:file:bg-blue-700'
-                  }`}
+                className={`w-full px-4 py-3 rounded-lg border file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold ${
+                  theme === 'dark'
+                    ? 'bg-gray-800 border-gray-700 text-white file:bg-blue-600 file:text-white hover:file:bg-blue-700'
+                    : 'bg-gray-100 border-gray-300 text-black file:bg-blue-600 file:text-white hover:file:bg-blue-700'
+                }`}
               />
 
-              <div className="flex justify-end gap-3">
-                <button type="button" onClick={onClose} className={`px-4 py-2 rounded border ${
-                  theme === 'dark' ? 'text-white border-gray-600 hover:bg-gray-700' : 'text-black border-gray-300 hover:bg-gray-200'
-                }`}>Cancel</button>
+              {imageFile && (
+                <img
+                  src={URL.createObjectURL(imageFile)}
+                  alt="Preview"
+                  className="w-full max-h-[200px] object-cover rounded-lg mt-2"
+                />
+              )}
 
-                <button type="submit" disabled={loading} className="px-6 py-2 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700">
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className={`px-4 py-2 rounded border ${
+                    theme === 'dark'
+                      ? 'text-white border-gray-600 hover:bg-gray-700'
+                      : 'text-black border-gray-300 hover:bg-gray-200'
+                  }`}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-6 py-2 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700"
+                >
                   {loading ? 'Posting...' : 'Post Blog'}
                 </button>
               </div>
