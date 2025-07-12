@@ -1,42 +1,39 @@
-// ✅ NO 'use client' here
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "next-themes";
-import Navbar from "@/components/Navbar";
-import { Toaster } from "sonner"; // ✅ Import Toaster from sonner
+// app/page.tsx
+'use client';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+interface DecodedToken {
+  exp: number;
+}
 
-export const metadata: Metadata = {
-  title: "GharPadharo",
-  description: "Find your next home easily",
-};
+export default function HomePage() {
+  const router = useRouter();
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Navbar />
-          <Toaster position="top-right" richColors closeButton /> {/* ✅ Add this */}
-          <div className="pt-16">{children}</div>
-        </ThemeProvider>
-      </body>
-    </html>
-  );
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+
+    if (token) {
+      try {
+        const decoded: DecodedToken = jwtDecode(token);
+        const now = Math.floor(Date.now() / 1000);
+
+        if (decoded.exp > now) {
+          router.replace('/dashboard'); // ✅ redirect to dashboard
+        } else {
+          localStorage.clear();
+          router.replace('/login'); // ✅ token expired
+        }
+      } catch (err) {
+        localStorage.clear();
+        router.replace('/login'); // ✅ invalid token
+      }
+    } else {
+      router.replace('/login'); // ✅ not logged in
+    }
+  }, [router]);
+
+  return null; // Or a loading spinner if you want
 }
