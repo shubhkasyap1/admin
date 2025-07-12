@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import CreateBlog from "@/components/CreateBlog";
 import BlogDetailsInline from "@/components/BlogDetailsInline";
 import { motion, AnimatePresence } from "framer-motion";
-import Loader from "@/components/ui/Loader"; // Optional loader component
+import Loader from "@/components/ui/Loader";
 
 export interface Blog {
   _id: string;
@@ -16,7 +16,11 @@ export interface Blog {
   createdAt: string;
 }
 
-export default function BlogPosts() {
+export interface BlogPostsProps {
+  onBlogSelect?: (blog: Blog) => void;
+}
+
+export default function BlogPosts({ onBlogSelect }: BlogPostsProps) {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [totalBlogs, setTotalBlogs] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -107,7 +111,7 @@ export default function BlogPosts() {
           </motion.p>
         ) : (
           <AnimatePresence mode="wait">
-            {selectedBlog ? (
+            {!onBlogSelect && selectedBlog ? (
               <motion.div
                 key="details"
                 initial={{ opacity: 0, x: 50 }}
@@ -123,7 +127,7 @@ export default function BlogPosts() {
                     fetchBlogs();
                     setTimeout(() => {
                       toast.success(`Blog ${action}d successfully!`);
-                    }, 250); // Optional slight delay for better UX
+                    }, 250);
                   }}
                 />
               </motion.div>
@@ -138,7 +142,13 @@ export default function BlogPosts() {
                 {blogs.map((blog, i) => (
                   <motion.div
                     key={blog._id}
-                    onClick={() => setSelectedBlog(blog)}
+                    onClick={() => {
+                      if (onBlogSelect) {
+                        onBlogSelect(blog);
+                      } else {
+                        setSelectedBlog(blog);
+                      }
+                    }}
                     className="cursor-pointer border rounded-lg shadow hover:shadow-md transition p-4 bg-white dark:bg-gray-900"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
