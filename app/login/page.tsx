@@ -1,11 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
-import toast from 'react-hot-toast';
+import { Toaster, toast } from 'sonner';
 import { Mail, Lock } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import logo from '@/public/logo.png'; // Adjust the path to your logo
+import { jwtDecode } from "jwt-decode";
+import logo from '@/public/logo.png';
+
+interface DecodedToken {
+  exp: number;
+}
 
 export default function Login({ onLogin }: { onLogin?: () => void }) {
   const { theme } = useTheme();
@@ -14,6 +19,22 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shake, setShake] = useState(false);
+
+  // 🔁 Auto-redirect if already logged in with a valid token
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      try {
+        const decoded: DecodedToken = jwtDecode(token);
+        const now = Math.floor(Date.now() / 1000);
+        if (decoded.exp > now) {
+          window.location.href = '/dashboard';
+        }
+      } catch {
+        localStorage.clear();
+      }
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +60,7 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
         return;
       }
 
+      // ✅ Store tokens and user
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('accessToken', data.info.accessToken);
       localStorage.setItem('refreshToken', data.info.refreshToken);
@@ -67,19 +89,19 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
         theme === 'dark' ? 'bg-[#121212] text-white' : 'bg-[#f4f6f8] text-gray-900'
       }`}
     >
-      {/* Background */}
+      {/* Background blur */}
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-200 via-purple-200 to-pink-100 dark:from-[#1a1a1a] dark:via-[#0e0e0e] dark:to-[#1f1f1f] blur-[120px] opacity-40"></div>
 
-      {/* Left Section (Logo) */}
+      {/* Left Section - Logo */}
       <div className="relative z-10 w-full md:w-1/2 flex items-center justify-center p-10">
         <img
           src={logo.src}
-          alt="Company Logo"
+          alt="Logo"
           className="w-[320px] md:w-[360px] lg:w-[400px] h-auto object-contain drop-shadow-xl"
         />
       </div>
 
-      {/* Right Section (Form) */}
+      {/* Right Section - Form */}
       <div className="relative z-10 w-full md:w-1/2 flex items-center justify-center p-6">
         <form
           onSubmit={handleLogin}
@@ -89,17 +111,16 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
               : 'bg-white/80 border-gray-200'
           }`}
         >
-          {/* Header */}
           <div className="mb-10 text-center">
             <h2 className="text-4xl font-extrabold tracking-tight leading-tight">
               Sign in to your account
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Enter your details to continue
+              Enter your credentials to continue
             </p>
           </div>
 
-          {/* Email */}
+          {/* Email Field */}
           <div className="mb-6">
             <label className="block mb-2 text-sm font-medium">Email</label>
             <div className="relative">
@@ -121,7 +142,7 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
             </div>
           </div>
 
-          {/* Password */}
+          {/* Password Field */}
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium">Password</label>
             <div className="relative">
@@ -142,7 +163,7 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
             </div>
           </div>
 
-          {/* Remember + Forgot */}
+          {/* Remember Me & Forgot */}
           <div className="flex items-center justify-between mb-6 text-sm">
             <label className="flex items-center space-x-2">
               <input
@@ -158,7 +179,7 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
             </a>
           </div>
 
-          {/* Login Button */}
+          {/* Submit Button with Shake Animation */}
           <AnimatePresence>
             <motion.div
               key={shake ? 'shake' : 'no-shake'}
@@ -199,7 +220,7 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
             </motion.div>
           </AnimatePresence>
 
-          {/* Create Account Link */}
+          {/* Sign Up Link */}
           <div className="mt-8 text-center text-sm">
             <span className="text-gray-600 dark:text-gray-400">
               Don&apos;t have an account?
@@ -213,6 +234,9 @@ export default function Login({ onLogin }: { onLogin?: () => void }) {
           </div>
         </form>
       </div>
+
+      {/* Toast notifications */}
+      <Toaster position="top-right" richColors closeButton />
     </div>
   );
 }

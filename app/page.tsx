@@ -1,29 +1,42 @@
-// app/page.tsx
+// ✅ NO 'use client' here
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+import { ThemeProvider } from "next-themes";
+import Navbar from "@/components/Navbar";
+import { Toaster } from "sonner"; // ✅ Import Toaster from sonner
 
-'use client';
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
-import { useEffect, useState } from 'react';
-import Login from './login/page';
-import Dashboard from './dashboard/page';
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
-export default function Home() {
-  const [mounted, setMounted] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+export const metadata: Metadata = {
+  title: "GharPadharo",
+  description: "Find your next home easily",
+};
 
-  useEffect(() => {
-    setMounted(true);
-    setIsLoggedIn(localStorage.getItem('isLoggedIn') === 'true');
-  }, []);
-
-  if (!mounted) return null;
-
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-white via-gray-100 to-white text-gray-900">
-      {isLoggedIn ? (
-        <Dashboard />
-      ) : (
-        <Login onLogin={() => setIsLoggedIn(true)} />
-      )}
-    </main>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Navbar />
+          <Toaster position="top-right" richColors closeButton /> {/* ✅ Add this */}
+          <div className="pt-16">{children}</div>
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }

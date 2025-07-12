@@ -5,6 +5,7 @@ import { toast, Toaster } from 'sonner';
 import { useTheme } from 'next-themes';
 import PodcastForm from '@/components/PodcastForm';
 import PodcastDetail from '@/components/PodcastDetail';
+import Loader from '@/components/ui/Loader'; // ✅ Import loader
 
 export type Podcast = {
   _id: string;
@@ -12,11 +13,12 @@ export type Podcast = {
   tag: string;
   date: string;
   url: string;
-  image: string; // imageUrl will be mapped to this
+  image: string;
 };
 
 export default function PodcastPost() {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
+  const [loading, setLoading] = useState(true); // ✅ Loading state
   const [showForm, setShowForm] = useState(false);
   const [selectedPodcast, setSelectedPodcast] = useState<Podcast | null>(null);
   const [editPodcast, setEditPodcast] = useState<Podcast | null>(null);
@@ -24,6 +26,7 @@ export default function PodcastPost() {
   const isDark = theme === 'dark';
 
   const fetchPodcasts = async () => {
+    setLoading(true); // ✅ Start loader
     try {
       const token = localStorage.getItem('accessToken');
       const res = await fetch('http://localhost:8000/api/v1/podcasts', {
@@ -51,6 +54,8 @@ export default function PodcastPost() {
     } catch (error) {
       console.error('Error fetching podcasts:', error);
       toast.error('Server error while fetching podcasts');
+    } finally {
+      setLoading(false); // ✅ End loader
     }
   };
 
@@ -60,7 +65,7 @@ export default function PodcastPost() {
 
   return (
     <div className="p-6 space-y-8 max-w-6xl mx-auto">
-      <Toaster position="top-right" richColors />
+      <Toaster position="top-right" />
 
       {selectedPodcast ? (
         <PodcastDetail
@@ -92,6 +97,8 @@ export default function PodcastPost() {
             setShowForm(false);
           }}
         />
+      ) : loading ? (
+        <Loader type="card" /> // ✅ Show loader while fetching
       ) : (
         <>
           {/* Header Cards */}

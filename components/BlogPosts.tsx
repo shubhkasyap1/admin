@@ -1,11 +1,13 @@
-// components/BlogPosts.tsx
 "use client";
 
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import CreateBlog from "@/components/CreateBlog";
+import BlogDetailsInline from "@/components/BlogDetailsInline";
+import { motion, AnimatePresence } from "framer-motion";
+import Loader from "@/components/ui/Loader"; // Optional loader component
 
-interface Blog {
+export interface Blog {
   _id: string;
   category: string;
   title: string;
@@ -14,15 +16,12 @@ interface Blog {
   createdAt: string;
 }
 
-interface BlogPostsProps {
-  onBlogSelect: (blog: Blog) => void;
-}
-
-export default function BlogPosts({ onBlogSelect }: BlogPostsProps) {
+export default function BlogPosts() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [totalBlogs, setTotalBlogs] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
 
   const fetchBlogs = async () => {
     setLoading(true);
@@ -53,59 +52,119 @@ export default function BlogPosts({ onBlogSelect }: BlogPostsProps) {
   }, []);
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">📚 Blog Posts Section</h1>
-      <p className="mb-4">Here you can manage your blog posts.</p>
+    <motion.div
+      className="p-6 space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.2 }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <h1 className="text-2xl font-semibold">📚 Blog Posts Section</h1>
+        <p className="mb-4">Here you can manage your blog posts.</p>
+      </motion.div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-blue-100 text-blue-800 p-4 rounded-lg shadow">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-blue-100 text-blue-800 p-4 rounded-lg shadow"
+        >
           <h2 className="text-lg font-bold">Total Blogs</h2>
           <p className="text-3xl">{totalBlogs}</p>
-        </div>
+        </motion.div>
 
-        <div
+        <motion.div
           onClick={() => setIsModalOpen(true)}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
           className="bg-green-100 text-green-800 p-4 rounded-lg shadow cursor-pointer hover:bg-green-200 transition"
         >
           <h2 className="text-lg font-bold">Create New Blog</h2>
           <p>Click here to write a new post ✍️</p>
-        </div>
+        </motion.div>
       </div>
 
       {/* Blog List */}
       <div>
         <h2 className="text-xl font-semibold mb-3">All Blogs</h2>
+
         {loading ? (
-          <p>Loading blogs...</p>
+          <Loader type="list" />
         ) : blogs.length === 0 ? (
-          <p>No blogs found.</p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            No blogs found.
+          </motion.p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {blogs.map((blog) => (
-              <div
-                key={blog._id}
-                onClick={() => onBlogSelect(blog)}
-                className="cursor-pointer border rounded-lg shadow hover:shadow-md transition p-4"
+          <AnimatePresence mode="wait">
+            {selectedBlog ? (
+              <motion.div
+                key="details"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 50 }}
+                transition={{ type: "spring", damping: 20, stiffness: 100 }}
               >
-                <img
-                  src={blog.image}
-                  alt={blog.title}
-                  className="w-full h-40 object-cover rounded mb-3"
+                <BlogDetailsInline
+                  blog={selectedBlog}
+                  onClose={() => setSelectedBlog(null)}
+                  onChange={(action) => {
+                    setSelectedBlog(null);
+                    fetchBlogs();
+                    setTimeout(() => {
+                      toast.success(`Blog ${action}d successfully!`);
+                    }, 250); // Optional slight delay for better UX
+                  }}
                 />
-                <h3 className="text-lg font-bold">{blog.title}</h3>
-                <p className="text-sm text-gray-600">
-                  {new Date(blog.createdAt).toLocaleString()}
-                </p>
-                <p className="mt-2 text-sm line-clamp-3">
-                  {blog.description}
-                </p>
-                <p className="mt-1 text-xs text-gray-500">
-                  Category: {blog.category}
-                </p>
-              </div>
-            ))}
-          </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="grid"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+              >
+                {blogs.map((blog, i) => (
+                  <motion.div
+                    key={blog._id}
+                    onClick={() => setSelectedBlog(blog)}
+                    className="cursor-pointer border rounded-lg shadow hover:shadow-md transition p-4 bg-white dark:bg-gray-900"
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 + i * 0.08 }}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <img
+                      src={blog.image}
+                      alt={blog.title}
+                      className="w-full h-40 object-cover rounded mb-3"
+                    />
+                    <h3 className="text-lg font-bold">{blog.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      {new Date(blog.createdAt).toLocaleString()}
+                    </p>
+                    <p className="mt-2 text-sm line-clamp-3">
+                      {blog.description}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      Category: {blog.category}
+                    </p>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         )}
       </div>
 
@@ -115,6 +174,6 @@ export default function BlogPosts({ onBlogSelect }: BlogPostsProps) {
         onClose={() => setIsModalOpen(false)}
         onBlogCreated={fetchBlogs}
       />
-    </div>
+    </motion.div>
   );
 }

@@ -1,9 +1,8 @@
-// ✅ NO 'use client' here
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "next-themes";
 import Navbar from "@/components/Navbar";
+import { Providers } from "./Providers"; // 👈
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,10 +29,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <Providers>
           <Navbar />
           <div className="pt-16">{children}</div>
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );
