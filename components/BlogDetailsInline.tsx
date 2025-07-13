@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useEffect } from "react";
-import { useTheme } from "next-themes";
-import ConfirmDialog from "@/components/ui/ConfirmDialog";
-import type { Blog } from "./BlogPosts";
-import { toast } from "sonner";
+import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
+import type { Blog } from './BlogPosts';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import { toast } from 'sonner';
 
 interface Props {
   blog: Blog;
   onClose: () => void;
-  onChange: (action: "update" | "delete") => void;
+  onChange: (action: 'update' | 'delete') => void;
 }
 
 export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
@@ -35,67 +35,67 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
 
   useEffect(() => {
     return () => {
-      if (previewImage?.startsWith("blob:")) {
+      if (previewImage?.startsWith('blob:')) {
         URL.revokeObjectURL(previewImage);
       }
     };
   }, [previewImage]);
 
   const handleUpdate = async () => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) return toast.error("You are not authorized");
+    const token = localStorage.getItem('accessToken');
+    if (!token) return toast.error('You are not authorized');
 
     const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("category", category);
-    if (imageFile) formData.append("image", imageFile);
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('category', category);
+    if (imageFile) formData.append('image', imageFile);
 
     setLoading(true);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/blogs/${blog._id}`, {
-        method: "PATCH",
+        method: 'PATCH',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
       const data = await res.json();
       if (data.success) {
-        toast.success("Blog updated successfully ✅");
+        toast.success('Blog updated successfully ✅');
         setEditMode(false);
-        onChange("update");
+        onChange('update');
       } else {
-        toast.error(data.message || "Failed to update blog");
+        toast.error(data.message || 'Failed to update blog');
       }
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong during update");
+      toast.error('Something went wrong during update');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) return toast.error("You are not authorized");
+    const token = localStorage.getItem('accessToken');
+    if (!token) return toast.error('You are not authorized');
 
     setLoading(true);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/blogs/${blog._id}`, {
-        method: "DELETE",
+        method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = await res.json();
       if (data.success) {
-        toast.success("Blog deleted successfully 🗑️");
-        onChange("delete");
+        toast.success('Blog deleted successfully 🗑️');
+        onChange('delete');
       } else {
-        toast.error(data.message || "Failed to delete blog");
+        toast.error(data.message || 'Failed to delete blog');
       }
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong during delete");
+      toast.error('Something went wrong during delete');
     } finally {
       setLoading(false);
     }
@@ -111,14 +111,16 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
   };
 
   return (
-    <div className={`w-full rounded-lg p-6 ${theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-black"}`}>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold">{editMode ? "Edit Blog" : blog.title}</h2>
+    <div className={`p-6 rounded-xl shadow border ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-semibold">
+          {editMode ? '✏️ Edit Blog' : blog.title}
+        </h2>
         <button
           onClick={onClose}
-          className={`text-sm font-medium px-3 py-1 rounded ${theme === "dark" ? "text-red-400 hover:bg-gray-800" : "text-red-600 hover:bg-gray-100"}`}
+          className="text-sm text-red-500 hover:underline"
         >
-          ✖ Close
+          ❌ Close
         </button>
       </div>
 
@@ -129,22 +131,22 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-4 py-2 border rounded"
               placeholder="Title"
-              className="w-full px-4 py-2 rounded border"
             />
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              className="w-full px-4 py-2 border rounded"
+              rows={6}
               placeholder="Description"
-              rows={5}
-              className="w-full px-4 py-2 rounded border"
             />
             <input
               type="text"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
+              className="w-full px-4 py-2 border rounded"
               placeholder="Category"
-              className="w-full px-4 py-2 rounded border"
             />
             <input
               type="file"
@@ -156,48 +158,66 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
                   setPreviewImage(URL.createObjectURL(file));
                 }
               }}
-              className="w-full px-4 py-2 rounded border"
+              className="w-full"
             />
-            {imageFile && <p className="text-sm text-gray-500">Selected: {imageFile.name}</p>}
+            {previewImage && (
+              <img
+                src={previewImage}
+                alt="Preview"
+                className="w-full max-h-80 object-cover rounded-lg"
+              />
+            )}
           </div>
 
-          {previewImage && (
-            <img src={previewImage} alt="Preview" className="w-full max-h-[400px] object-cover rounded-lg mt-4" />
-          )}
-
           <div className="flex justify-end gap-3 mt-4">
-            <button onClick={resetForm} className="px-4 py-2 rounded border">
+            <button onClick={resetForm} className="px-4 py-2 border rounded">
               Cancel
             </button>
             <button
-              disabled={loading}
               onClick={() => setShowUpdateConfirm(true)}
-              className={`px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+              disabled={loading}
+              className={`px-4 py-2 rounded text-white bg-blue-600 hover:bg-blue-700 ${
+                loading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
-              {loading ? "Updating..." : "Update"}
+              {loading ? 'Updating...' : 'Update'}
             </button>
           </div>
         </>
       ) : (
         <>
-          <img src={blog.image} alt={blog.title} className="w-full max-h-[400px] object-cover rounded-lg mb-4" />
-          <p className="text-sm mb-2"><span className="font-semibold">Created At:</span> {new Date(blog.createdAt).toLocaleString()}</p>
-          <p className="text-sm mb-6"><span className="font-semibold">Category:</span> {blog.category}</p>
-          <p className="text-base leading-relaxed whitespace-pre-wrap mb-6">{blog.description}</p>
-          <div className="flex justify-end gap-4 mt-4">
-            <button onClick={() => setEditMode(true)} className="px-4 py-2 rounded border">✏️ Edit</button>
+          <img
+            src={blog.image}
+            alt={blog.title}
+            className="w-full max-h-80 object-cover rounded-lg mb-4"
+          />
+          <p className="text-sm text-gray-500">
+            🕒 {new Date(blog.createdAt).toLocaleString()}
+          </p>
+          <p className="mb-2">
+            📂 <span className="font-medium">Category:</span> {blog.category}
+          </p>
+          <p className="whitespace-pre-wrap">{blog.description}</p>
+
+          <div className="flex justify-end gap-3 mt-4">
             <button
-              disabled={loading}
-              onClick={() => setShowDeleteConfirm(true)}
-              className={`px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+              onClick={() => setEditMode(true)}
+              className="px-4 py-2 border rounded"
             >
-              🗑️ Delete
+              ✏️ Edit
+            </button>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={loading}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              {loading ? 'Deleting...' : '🗑️ Delete'}
             </button>
           </div>
         </>
       )}
 
-      {/* 🔴 Delete Confirmation */}
+      {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         open={showDeleteConfirm}
         onCancel={() => setShowDeleteConfirm(false)}
@@ -211,7 +231,7 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
         cancelText="Cancel"
       />
 
-      {/* 🔵 Update Confirmation */}
+      {/* Update Confirmation Dialog */}
       <ConfirmDialog
         open={showUpdateConfirm}
         onCancel={() => setShowUpdateConfirm(false)}

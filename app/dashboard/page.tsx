@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import BlogPosts from "@/components/BlogPosts";
 import NewsPosts from "@/components/NewsPost";
-import BlogDetails, { Blog } from "@/components/BlogDetails";
 import PodcastPost from "@/components/PodcastPost";
-import { jwtDecode } from "jwt-decode"; // ✅ correct default import style for jwt-decode
-import Loader from "@/components/ui/Loader"; // optional loader
 import QuestionAns from "@/components/QuestionAns";
+import BlogDetailsInline from "@/components/BlogDetailsInline"; // ✅ Inline component
+import type { Blog } from "@/components/BlogPosts";
+import { jwtDecode } from "jwt-decode";
+import Loader from "@/components/ui/Loader";
 
 interface DecodedToken {
   exp: number;
@@ -19,7 +20,7 @@ export default function Dashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<string>("home");
   const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
-  const [checkingAuth, setCheckingAuth] = useState(true); // ✅ show loader while checking token
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -37,7 +38,7 @@ export default function Dashboard() {
         localStorage.clear();
         router.push("/login");
       } else {
-        setCheckingAuth(false); // ✅ token valid, stop loader
+        setCheckingAuth(false);
       }
     } catch (err) {
       console.error("Invalid token:", err);
@@ -49,11 +50,7 @@ export default function Dashboard() {
   const renderContent = () => {
     switch (activeTab) {
       case "home":
-        return (
-          <h1 className="text-3xl font-semibold">
-            Welcome to your Dashboard 🎉
-          </h1>
-        );
+        return <h1 className="text-3xl font-semibold">Welcome to your Dashboard 🎉</h1>;
       case "blog":
         return (
           <BlogPosts
@@ -65,10 +62,16 @@ export default function Dashboard() {
         );
       case "blog-details":
         return (
-          <BlogDetails
-            isOpen={true}
-            blog={selectedBlog}
-            onClose={() => setActiveTab("blog")}
+          <BlogDetailsInline
+            blog={selectedBlog!}
+            onClose={() => {
+              setSelectedBlog(null);
+              setActiveTab("blog");
+            }}
+            onChange={() => {
+              setSelectedBlog(null);
+              setActiveTab("blog");
+            }}
           />
         );
       case "news":

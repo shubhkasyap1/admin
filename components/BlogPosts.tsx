@@ -17,7 +17,7 @@ export interface Blog {
 }
 
 export interface BlogPostsProps {
-  onBlogSelect?: (blog: Blog) => void;
+  onBlogSelect?: (blog: Blog) => void; // ✅ Accepts this prop optionally
 }
 
 export default function BlogPosts({ onBlogSelect }: BlogPostsProps) {
@@ -96,7 +96,7 @@ export default function BlogPosts({ onBlogSelect }: BlogPostsProps) {
         </motion.div>
       </div>
 
-      {/* Blog List */}
+      {/* Blog List or Blog Details */}
       <div>
         <h2 className="text-xl font-semibold mb-3">All Blogs</h2>
 
@@ -113,6 +113,7 @@ export default function BlogPosts({ onBlogSelect }: BlogPostsProps) {
         ) : (
           <AnimatePresence mode="wait">
             {!onBlogSelect && selectedBlog ? (
+              // ✅ Inline Blog Detail View
               <motion.div
                 key="details"
                 initial={{ opacity: 0, x: 50 }}
@@ -133,6 +134,7 @@ export default function BlogPosts({ onBlogSelect }: BlogPostsProps) {
                 />
               </motion.div>
             ) : (
+              // ✅ Blog Cards Grid
               <motion.div
                 key="grid"
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
@@ -145,9 +147,9 @@ export default function BlogPosts({ onBlogSelect }: BlogPostsProps) {
                     key={blog._id}
                     onClick={() => {
                       if (onBlogSelect) {
-                        onBlogSelect(blog);
+                        onBlogSelect(blog); // external handler (e.g. Dashboard)
                       } else {
-                        setSelectedBlog(blog);
+                        setSelectedBlog(blog); // internal inline view
                       }
                     }}
                     className="cursor-pointer border rounded-lg shadow hover:shadow-md transition p-4 bg-white dark:bg-gray-900"
