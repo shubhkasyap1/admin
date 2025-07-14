@@ -7,7 +7,8 @@ import BlogPosts from "@/components/BlogPosts";
 import NewsPosts from "@/components/NewsPost";
 import PodcastPost from "@/components/PodcastPost";
 import QuestionAns from "@/components/QuestionAns";
-import BlogDetailsInline from "@/components/BlogDetailsInline"; // ✅ Inline component
+import BlogDetailsInline from "@/components/BlogDetailsInline"; 
+import SuccessStories from "@/components/SuccessStories";
 import type { Blog } from "@/components/BlogPosts";
 import { jwtDecode } from "jwt-decode";
 import Loader from "@/components/ui/Loader";
@@ -80,6 +81,8 @@ export default function Dashboard() {
         return <PodcastPost />;
       case "question-ans":
         return <QuestionAns />;
+      case "success-stories":
+        return <SuccessStories />;
       default:
         return <h1 className="text-2xl font-semibold">Welcome!</h1>;
     }
