@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { toast, Toaster } from 'sonner';
-import { useTheme } from 'next-themes';
-import PodcastForm from '@/components/PodcastForm';
-import PodcastDetail from '@/components/PodcastDetail';
-import Loader from '@/components/ui/Loader';
+import React, { useEffect, useState } from "react";
+import { toast, Toaster } from "sonner";
+import { useTheme } from "next-themes";
+import PodcastForm from "@/components/PodcastForm";
+import PodcastDetail from "@/components/PodcastDetail";
+import Loader from "@/components/ui/Loader";
 
 export type Podcast = {
   _id: string;
@@ -25,16 +25,16 @@ export default function PodcastPost() {
   const [selectedPodcast, setSelectedPodcast] = useState<Podcast | null>(null);
   const [editPodcast, setEditPodcast] = useState<Podcast | null>(null);
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const isDark = theme === "dark";
 
   const fetchPodcasts = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem("accessToken");
       const res = await fetch(`${API_BASE}/podcasts`, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
@@ -47,15 +47,16 @@ export default function PodcastPost() {
           tag: item.tag,
           date: item.date,
           url: item.url,
-          image: `${process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '')}${item.imageUrl}`,
+          image: item.image, 
         }));
+
         setPodcasts(updated);
       } else {
-        toast.error(data.message || 'Failed to fetch podcasts');
+        toast.error(data.message || "Failed to fetch podcasts");
       }
     } catch (error) {
-      console.error('Error fetching podcasts:', error);
-      toast.error('Server error while fetching podcasts');
+      console.error("Error fetching podcasts:", error);
+      toast.error("Server error while fetching podcasts");
     } finally {
       setLoading(false);
     }
@@ -108,19 +109,21 @@ export default function PodcastPost() {
             <div
               className={`rounded-xl p-6 border shadow-md ${
                 isDark
-                  ? 'bg-gray-800 text-white border-gray-700'
-                  : 'bg-white text-black border border-gray-200'
+                  ? "bg-gray-800 text-white border-gray-700"
+                  : "bg-white text-black border border-gray-200"
               }`}
             >
               <h2 className="text-xl font-semibold mb-2">🎧 Total Podcasts</h2>
-              <p className="text-4xl font-bold text-blue-500">{podcasts.length}</p>
+              <p className="text-4xl font-bold text-blue-500">
+                {podcasts.length}
+              </p>
             </div>
 
             <div
               className={`rounded-xl p-6 border shadow-md flex items-center justify-between ${
                 isDark
-                  ? 'bg-gray-800 text-white border-gray-700'
-                  : 'bg-white text-black border border-gray-200'
+                  ? "bg-gray-800 text-white border-gray-700"
+                  : "bg-white text-black border border-gray-200"
               }`}
             >
               <h2 className="text-xl font-semibold">➕ Add a New Podcast</h2>
@@ -128,8 +131,8 @@ export default function PodcastPost() {
                 onClick={() => setShowForm(true)}
                 className={`px-4 py-2 rounded-md font-medium transition ${
                   isDark
-                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                    : 'bg-gray-100 hover:bg-gray-200 text-black'
+                    ? "bg-gray-700 hover:bg-gray-600 text-white"
+                    : "bg-gray-100 hover:bg-gray-200 text-black"
                 }`}
               >
                 Create Podcast
@@ -148,8 +151,8 @@ export default function PodcastPost() {
                   onClick={() => setSelectedPodcast(podcast)}
                   className={`relative rounded-xl p-4 shadow-md border transition-transform hover:scale-105 cursor-pointer ${
                     isDark
-                      ? 'bg-gray-800 text-white border-gray-700'
-                      : 'bg-white text-black border border-gray-200'
+                      ? "bg-gray-800 text-white border-gray-700"
+                      : "bg-white text-black border border-gray-200"
                   }`}
                 >
                   {/* Image with Play Button */}
@@ -162,7 +165,7 @@ export default function PodcastPost() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        window.open(podcast.url, '_blank');
+                        window.open(podcast.url, "_blank");
                       }}
                       className="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-3xl font-bold hover:bg-black/60 transition"
                     >
@@ -172,7 +175,9 @@ export default function PodcastPost() {
 
                   <h3 className="text-lg font-bold">{podcast.title}</h3>
                   <p className="text-sm text-gray-400">{podcast.tag}</p>
-                  <p className="text-sm">{new Date(podcast.date).toLocaleDateString()}</p>
+                  <p className="text-sm">
+                    {new Date(podcast.date).toLocaleDateString()}
+                  </p>
                 </div>
               ))}
             </div>

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 type Props = {
-  onSuccess: () => void;
+  onSuccess: (data?: any) => void;
   onClose: () => void;
   defaultData?: {
     _id: string;
@@ -36,10 +36,10 @@ const CreateQuestion = ({ onSuccess, onClose, defaultData }: Props) => {
 
     const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
     const url = isEdit
-      ? `${API_BASE}/questions/${defaultData?._id}`
-      : `${API_BASE}/questions`;
+      ? `${API_BASE}/qna/${defaultData?._id}`  // ✅ corrected
+      : `${API_BASE}/qna`;                    // ✅ corrected
 
-    const method = isEdit ? "PUT" : "POST";
+    const method = isEdit ? "PATCH" : "POST";  // ✅ corrected
 
     try {
       const res = await fetch(url, {
@@ -54,7 +54,7 @@ const CreateQuestion = ({ onSuccess, onClose, defaultData }: Props) => {
       const data = await res.json();
 
       if (data.success) {
-        onSuccess();
+        onSuccess(data.info);  // ✅ return updated/created data
       } else {
         toast.error(data.message || "Operation failed.");
       }
