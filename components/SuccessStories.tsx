@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { Loader2, Plus, X } from 'lucide-react';
-import SuccessStoryForm from '@/components/SuccessStoriesForm';
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import { Loader2, Plus, X } from "lucide-react";
+import SuccessStoryForm from "@/components/SuccessStoriesForm";
+import { toast } from "sonner";
 
-// Types
 interface SuccessStory {
   _id: string;
   personName: string;
@@ -15,7 +15,8 @@ interface SuccessStory {
   createdAt: string;
 }
 
-const API_URL = 'https://ghardpadharo-blog-backend.onrender.com/api/v1/success-stories/';
+const API_URL =
+  "https://ghardpadharo-blog-backend.onrender.com/api/v1/success-stories/";
 
 export default function SuccessStories() {
   const [stories, setStories] = useState<SuccessStory[]>([]);
@@ -30,7 +31,7 @@ export default function SuccessStories() {
       const data = await res.json();
       if (data.success) setStories(data.info);
     } catch (err) {
-      console.error('Error fetching stories:', err);
+      console.error("Error fetching stories:", err);
     } finally {
       setLoading(false);
     }
@@ -41,28 +42,28 @@ export default function SuccessStories() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    const confirmed = confirm('Are you sure you want to delete this story?');
+    const confirmed = confirm("Are you sure you want to delete this story?");
     if (!confirmed) return;
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const res = await fetch(`${API_URL}${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       const result = await res.json();
       if (result.success) {
-        alert('✅ Deleted successfully!');
+        alert("✅ Deleted successfully!");
         setSelectedStory(null);
         fetchStories();
       } else {
-        alert('❌ Delete failed.');
+        alert("❌ Delete failed.");
       }
     } catch (err) {
       console.error(err);
-      alert('❌ Server error');
+      alert("❌ Server error");
     }
   };
 
@@ -91,6 +92,7 @@ export default function SuccessStories() {
               existing={selectedStory}
               onSuccess={() => {
                 fetchStories();
+                toast.success("✅ Story updated successfully!");
                 setShowEditForm(false);
                 setSelectedStory(null);
               }}
@@ -123,16 +125,13 @@ export default function SuccessStories() {
               />
             </div>
 
-            <h3 className="text-xl font-semibold mb-1">{selectedStory.personName}</h3>
+            <h3 className="text-xl font-semibold mb-1">
+              {selectedStory.personName}
+            </h3>
             <p className="text-gray-500 mb-2">{selectedStory.designation}</p>
-            <a
-              href={selectedStory.quote}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline mb-4 block"
-            >
-              ▶️ Watch Story
-            </a>
+            <p className="mb-4 text-gray-700 dark:text-gray-300 italic">
+              "{selectedStory.quote}"
+            </p>
 
             <div className="flex justify-end gap-4">
               <button
@@ -158,7 +157,9 @@ export default function SuccessStories() {
           <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
             Total Success Stories
           </h3>
-          <span className="text-4xl font-bold text-blue-600">{stories.length}</span>
+          <span className="text-4xl font-bold text-blue-600">
+            {stories.length}
+          </span>
         </div>
 
         <div className="bg-white dark:bg-gray-800 p-6 shadow rounded-xl flex flex-col items-start justify-between">
@@ -205,7 +206,7 @@ export default function SuccessStories() {
                   {story.designation}
                 </p>
                 <span className="inline-block mt-2 text-blue-500 hover:underline text-sm">
-                  ▶️ View Story
+                  ▶️ View Quote
                 </span>
               </div>
             </div>
