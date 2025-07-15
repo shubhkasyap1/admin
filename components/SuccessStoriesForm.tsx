@@ -31,7 +31,7 @@ export default function SuccessStoryForm({ onClose, onSuccess, existing }: Props
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const isEdit = Boolean(existing);
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
   useEffect(() => {
     if (imageFile) {
@@ -74,7 +74,7 @@ export default function SuccessStoryForm({ onClose, onSuccess, existing }: Props
         : `/success-stories`;
 
       const res = await fetch(`${API_BASE}${endpoint}`, {
-        method: isEdit ? 'PUT' : 'POST',
+        method: isEdit ? 'PATCH' : 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
         },

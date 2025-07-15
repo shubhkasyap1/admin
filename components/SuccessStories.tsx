@@ -46,7 +46,7 @@ export default function SuccessStories() {
     if (!confirmed) return;
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("accessToken");
       const res = await fetch(`${API_URL}${id}`, {
         method: "DELETE",
         headers: {
