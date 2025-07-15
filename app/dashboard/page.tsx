@@ -7,11 +7,12 @@ import BlogPosts from "@/components/BlogPosts";
 import NewsPosts from "@/components/NewsPost";
 import PodcastPost from "@/components/PodcastPost";
 import QuestionAns from "@/components/QuestionAns";
-import BlogDetailsInline from "@/components/BlogDetailsInline"; 
+import BlogDetailsInline from "@/components/BlogDetailsInline";
 import SuccessStories from "@/components/SuccessStories";
 import type { Blog } from "@/components/BlogPosts";
 import { jwtDecode } from "jwt-decode";
 import Loader from "@/components/ui/Loader";
+import FeaturedPost from "@/components/FeaturedPost";
 
 interface DecodedToken {
   exp: number;
@@ -51,7 +52,11 @@ export default function Dashboard() {
   const renderContent = () => {
     switch (activeTab) {
       case "home":
-        return <h1 className="text-3xl font-semibold">Welcome to your Dashboard 🎉</h1>;
+        return (
+          <h1 className="text-3xl font-semibold">
+            Welcome to your Dashboard 🎉
+          </h1>
+        );
       case "blog":
         return (
           <BlogPosts
@@ -83,6 +88,8 @@ export default function Dashboard() {
         return <QuestionAns />;
       case "success-stories":
         return <SuccessStories />;
+      case "featured-posts":
+        return <FeaturedPost />;
       default:
         return <h1 className="text-2xl font-semibold">Welcome!</h1>;
     }
