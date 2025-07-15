@@ -38,7 +38,7 @@ export default function NewsPosts() {
       setLoading(true);
       const url =
         city && city !== "all"
-          ? `${API_BASE}/news/city${city}`
+          ? `${API_BASE}/news/city?city=${city}`
           : `${API_BASE}/news`;
       const res = await fetch(url);
       const data = await res.json();
