@@ -13,6 +13,7 @@ import type { Blog } from "@/components/BlogPosts";
 import { jwtDecode } from "jwt-decode";
 import Loader from "@/components/ui/Loader";
 import FeaturedPost from "@/components/FeaturedPost";
+import NewsAndUpdatePost from "@/components/NewsAndUpdate";
 
 interface DecodedToken {
   exp: number;
@@ -90,6 +91,8 @@ export default function Dashboard() {
         return <SuccessStories />;
       case "featured-posts":
         return <FeaturedPost />;
+      case "NewsAndUpdate":
+        return <NewsAndUpdatePost />;
       default:
         return <h1 className="text-2xl font-semibold">Welcome!</h1>;
     }
