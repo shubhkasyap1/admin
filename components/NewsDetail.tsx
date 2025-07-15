@@ -12,6 +12,7 @@ export type NewsType = {
   author: string;
   image: string;
   createdAt: string;
+  content : string
 };
 
 type Props = {
@@ -22,8 +23,7 @@ type Props = {
 };
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  'https://ghardpadharo-blog-backend.onrender.com/api/v1';
+  process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function NewsDetail({
   item,

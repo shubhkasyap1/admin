@@ -13,6 +13,7 @@ type Props = {
     author: string;
     city: string;
     image: string;
+    content : string
   };
 };
 
@@ -25,6 +26,7 @@ export default function CreateNewsModal({ onClose, onCreated, newsToEdit }: Prop
     title: newsToEdit?.title || '',
     author: newsToEdit?.author || '',
     city: newsToEdit?.city || '',
+    content: newsToEdit?.content || '',
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -41,7 +43,7 @@ export default function CreateNewsModal({ onClose, onCreated, newsToEdit }: Prop
     }
   }, [imageFile]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -61,10 +63,11 @@ export default function CreateNewsModal({ onClose, onCreated, newsToEdit }: Prop
     body.append('title', formData.title);
     body.append('author', formData.author);
     body.append('city', formData.city);
+    body.append('content', formData.content);
     if (imageFile) body.append('image', imageFile);
 
-    const endpoint = isEdit ? `/news/${newsToEdit?._id}` : '/news';
-    const method = isEdit ? 'PUT' : 'POST';
+    const endpoint = isEdit ? `/news/${newsToEdit?._id}` : '/news/';
+    const method = isEdit ? 'PATCH' : 'POST';
 
     // ❗ Debug logs
     console.log('🧪 Submitting:', isEdit ? 'EDIT' : 'CREATE');
@@ -137,6 +140,22 @@ export default function CreateNewsModal({ onClose, onCreated, newsToEdit }: Prop
             />
           </div>
         ))}
+
+        {/* Content Field */}
+        <div className="col-span-1 md:col-span-2">
+          <label className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
+            Content
+          </label>
+          <textarea
+            name="content"
+            value={formData.content}
+            onChange={handleChange}
+            className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 bg-transparent text-black dark:text-white"
+            placeholder="Enter news content"
+            rows={5}
+            required
+          />
+        </div>
 
         <div className="col-span-1 md:col-span-2">
           <label className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">

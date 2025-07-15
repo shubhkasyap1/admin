@@ -21,6 +21,8 @@ const NewsCardSkeleton = () => (
   </div>
 );
 
+
+
 export default function NewsPosts() {
   const [news, setNews] = useState<NewsType[]>([]);
   const [cities, setCities] = useState<string[]>([]);
@@ -36,7 +38,7 @@ export default function NewsPosts() {
       setLoading(true);
       const url =
         city && city !== "all"
-          ? `${API_BASE}/news?city=${city}`
+          ? `${API_BASE}/news/city${city}`
           : `${API_BASE}/news`;
       const res = await fetch(url);
       const data = await res.json();
@@ -45,10 +47,12 @@ export default function NewsPosts() {
         setNews(data.info);
       } else {
         toast.error(data.message || "Failed to fetch news");
+        window.alert(data.message || "Failed to fetch news");
         setNews([]);
       }
     } catch (err) {
       toast.error("Something went wrong while fetching news");
+      window.alert("Something went wrong while fetching news");
     } finally {
       setLoading(false);
     }
@@ -61,13 +65,14 @@ export default function NewsPosts() {
 
       if (data.success && Array.isArray(data.info)) {
         const uniqueCities = Array.from(
-          new Set((data.info as NewsType[]).map((n) => n.city.toLowerCase()))
+          new Set((data.info as NewsType[]).map((n) => n.city))
         ) as string[];
 
         setCities(uniqueCities);
       }
     } catch (err) {
       toast.error("Error fetching cities.");
+      window.alert("Error fetching cities.");
     }
   };
 
