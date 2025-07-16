@@ -3,15 +3,16 @@
 import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 import toast from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
+import dynamic from 'next/dynamic';
+
+const EditorWithToolbar = dynamic(() => import('./EditorWithToolbar'), { ssr: false });
 
 interface Props {
-  isOpen: boolean;
   onClose: () => void;
   onBlogCreated: () => void;
 }
 
-export default function CreateBlogModal({ isOpen, onClose, onBlogCreated }: Props) {
+export default function CreateBlog({ onClose, onBlogCreated }: Props) {
   const { theme } = useTheme();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -20,13 +21,11 @@ export default function CreateBlogModal({ isOpen, onClose, onBlogCreated }: Prop
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      setTitle('');
-      setDescription('');
-      setCategory('');
-      setImageFile(null);
-    }
-  }, [isOpen]);
+    setTitle('');
+    setDescription('');
+    setCategory('');
+    setImageFile(null);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +62,6 @@ export default function CreateBlogModal({ isOpen, onClose, onBlogCreated }: Prop
 
       toast.success(data.message || 'Blog created successfully!');
       onBlogCreated();
-      onClose();
     } catch (err) {
       console.error('Blog create error:', err);
       toast.error('Something went wrong!');
@@ -73,108 +71,83 @@ export default function CreateBlogModal({ isOpen, onClose, onBlogCreated }: Prop
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50"
-        >
-          <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 50, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className={`w-full max-w-xl rounded-xl p-6 shadow-lg border ${
+    <div
+      className={`w-full max-w-6xl mx-auto rounded-2xl p-8 shadow-xl border ${
+        theme === 'dark'
+          ? 'bg-gray-900 border-gray-800 text-white'
+          : 'bg-white border-gray-200 text-black'
+      }`}
+    >
+      <h2 className="text-3xl font-bold mb-6">📝 Create New Blog</h2>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <input
+          type="text"
+          placeholder="Blog Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className={`w-full px-5 py-4 text-lg rounded-xl border ${
+            theme === 'dark'
+              ? 'bg-gray-800 border-gray-700 text-white'
+              : 'bg-gray-100 border-gray-300 text-black'
+          }`}
+        />
+
+        <EditorWithToolbar content={description} onChange={setDescription} />
+
+        <input
+          type="text"
+          placeholder="Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className={`w-full px-5 py-4 text-lg rounded-xl border ${
+            theme === 'dark'
+              ? 'bg-gray-800 border-gray-700 text-white'
+              : 'bg-gray-100 border-gray-300 text-black'
+          }`}
+        />
+
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+          className={`w-full px-5 py-4 rounded-xl border file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold ${
+            theme === 'dark'
+              ? 'bg-gray-800 border-gray-700 text-white file:bg-blue-600 file:text-white hover:file:bg-blue-700'
+              : 'bg-gray-100 border-gray-300 text-black file:bg-blue-600 file:text-white hover:file:bg-blue-700'
+          }`}
+        />
+
+        {imageFile && (
+          <img
+            src={URL.createObjectURL(imageFile)}
+            alt="Preview"
+            className="w-full max-h-[250px] object-cover rounded-xl mt-3"
+          />
+        )}
+
+        <div className="flex justify-end gap-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className={`px-5 py-3 rounded-xl text-base font-medium border ${
               theme === 'dark'
-                ? 'bg-gray-900 border-gray-800 text-white'
-                : 'bg-white border-gray-200 text-black'
+                ? 'text-white border-gray-600 hover:bg-gray-700'
+                : 'text-black border-gray-300 hover:bg-gray-200'
             }`}
           >
-            <h2 className="text-2xl font-bold mb-4">Create Blog</h2>
+            Cancel
+          </button>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="text"
-                placeholder="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  theme === 'dark'
-                    ? 'bg-gray-800 border-gray-700 text-white'
-                    : 'bg-gray-100 border-gray-300 text-black'
-                }`}
-              />
-
-              <textarea
-                placeholder="Description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  theme === 'dark'
-                    ? 'bg-gray-800 border-gray-700 text-white'
-                    : 'bg-gray-100 border-gray-300 text-black'
-                }`}
-                rows={4}
-              />
-
-              <input
-                type="text"
-                placeholder="Category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  theme === 'dark'
-                    ? 'bg-gray-800 border-gray-700 text-white'
-                    : 'bg-gray-100 border-gray-300 text-black'
-                }`}
-              />
-
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                className={`w-full px-4 py-3 rounded-lg border file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold ${
-                  theme === 'dark'
-                    ? 'bg-gray-800 border-gray-700 text-white file:bg-blue-600 file:text-white hover:file:bg-blue-700'
-                    : 'bg-gray-100 border-gray-300 text-black file:bg-blue-600 file:text-white hover:file:bg-blue-700'
-                }`}
-              />
-
-              {imageFile && (
-                <img
-                  src={URL.createObjectURL(imageFile)}
-                  alt="Preview"
-                  className="w-full max-h-[200px] object-cover rounded-lg mt-2"
-                />
-              )}
-
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className={`px-4 py-2 rounded border ${
-                    theme === 'dark'
-                      ? 'text-white border-gray-600 hover:bg-gray-700'
-                      : 'text-black border-gray-300 hover:bg-gray-200'
-                  }`}
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-6 py-2 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700"
-                >
-                  {loading ? 'Posting...' : 'Post Blog'}
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-6 py-3 rounded-xl text-base font-semibold text-white bg-blue-600 hover:bg-blue-700"
+          >
+            {loading ? 'Posting...' : 'Post Blog'}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }

@@ -5,6 +5,10 @@ import { useTheme } from 'next-themes';
 import type { Blog } from './BlogPosts';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { toast } from 'sonner';
+import dynamic from 'next/dynamic';
+
+// 👉 Dynamic import to avoid SSR issues
+const EditorWithToolbar = dynamic(() => import('./EditorWithToolbar'), { ssr: false });
 
 interface Props {
   blog: Blog;
@@ -134,13 +138,10 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
               className="w-full px-4 py-2 border rounded"
               placeholder="Title"
             />
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-2 border rounded"
-              rows={6}
-              placeholder="Description"
-            />
+
+            {/* 👉 EditorWithToolbar instead of textarea */}
+            <EditorWithToolbar content={description} onChange={setDescription} />
+
             <input
               type="text"
               value={category}
@@ -148,6 +149,7 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
               className="w-full px-4 py-2 border rounded"
               placeholder="Category"
             />
+
             <input
               type="file"
               accept="image/*"
@@ -160,6 +162,7 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
               }}
               className="w-full"
             />
+
             {previewImage && (
               <img
                 src={previewImage}
