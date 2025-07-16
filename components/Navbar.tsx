@@ -55,23 +55,6 @@ export default function Navbar() {
       </Link>
 
       <div className="flex items-center gap-3 relative">
-        {/* Language Selector */}
-        <select
-          className={cn(
-            'px-3 py-1 rounded text-sm font-medium border',
-            theme === 'dark'
-              ? 'bg-gray-800 border-gray-700 text-white'
-              : 'bg-gray-100 border-gray-300 text-black'
-          )}
-          defaultValue="en"
-          onChange={(e) => alert(`Language changed to ${e.target.value}`)}
-        >
-          <option value="en">English</option>
-          <option value="hi">हिन्दी</option>
-          <option value="mr">मराठी</option>
-          <option value="gu">ગુજરાતી</option>
-          <option value="bn">বাংলা</option>
-        </select>
 
         {/* Theme Toggle */}
         <button
