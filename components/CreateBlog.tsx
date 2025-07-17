@@ -1,153 +1,98 @@
-'use client';
+// app/components/CreateBlog.tsx
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useTheme } from 'next-themes';
-import toast from 'react-hot-toast';
-import dynamic from 'next/dynamic';
+import React, { useState } from "react";
+import dynamic from "next/dynamic";
 
-const EditorWithToolbar = dynamic(() => import('./EditorWithToolbar'), { ssr: false });
+// Dynamically import CKEditor wrapper
+const WordEditor = dynamic(() => import("./WordEditor"), { ssr: false });
 
-interface Props {
-  onClose: () => void;
-  onBlogCreated: () => void;
-}
-
-export default function CreateBlog({ onClose, onBlogCreated }: Props) {
-  const { theme } = useTheme();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setTitle('');
-    setDescription('');
-    setCategory('');
-    setImageFile(null);
-  }, []);
+export default function CreateBlog() {
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [description, setDescription] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title || !description || !category || !imageFile) {
-      toast.error('Please fill all fields');
+    if (!title || !category || !image || !description) {
+      alert("All fields are required!");
       return;
     }
 
-    setLoading(true);
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("category", category);
+    formData.append("image", image);
+    formData.append("description", description);
 
     try {
-      const formData = new FormData();
-      formData.append('title', title);
-      formData.append('description', description);
-      formData.append('category', category);
-      formData.append('image', imageFile);
-
-      const accessToken = localStorage.getItem('accessToken');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/blogs/`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+      const res = await fetch("/api/blogs", {
+        method: "POST",
         body: formData,
       });
 
       const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        toast.error(data?.message || 'Failed to create blog');
-        return;
+      if (res.ok) {
+        alert("Blog Created Successfully!");
+        setTitle("");
+        setCategory("");
+        setImage(null);
+        setDescription("");
+      } else {
+        alert(data.message || "Something went wrong");
       }
-
-      toast.success(data.message || 'Blog created successfully!');
-      onBlogCreated();
     } catch (err) {
-      console.error('Blog create error:', err);
-      toast.error('Something went wrong!');
-    } finally {
-      setLoading(false);
+      console.error("Error submitting blog:", err);
     }
   };
 
   return (
-    <div
-      className={`w-full max-w-6xl mx-auto rounded-2xl p-8 shadow-xl border ${
-        theme === 'dark'
-          ? 'bg-gray-900 border-gray-800 text-white'
-          : 'bg-white border-gray-200 text-black'
-      }`}
-    >
-      <h2 className="text-3xl font-bold mb-6">📝 Create New Blog</h2>
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl mx-auto p-4">
+      <h1 className="text-2xl font-semibold">Create New Blog</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <label className="block font-medium mb-1">Title</label>
         <input
           type="text"
-          placeholder="Blog Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className={`w-full px-5 py-4 text-lg rounded-xl border ${
-            theme === 'dark'
-              ? 'bg-gray-800 border-gray-700 text-white'
-              : 'bg-gray-100 border-gray-300 text-black'
-          }`}
+          className="w-full border px-3 py-2 rounded"
         />
+      </div>
 
-        <EditorWithToolbar content={description} onChange={setDescription} />
-
+      <div>
+        <label className="block font-medium mb-1">Category</label>
         <input
           type="text"
-          placeholder="Category"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className={`w-full px-5 py-4 text-lg rounded-xl border ${
-            theme === 'dark'
-              ? 'bg-gray-800 border-gray-700 text-white'
-              : 'bg-gray-100 border-gray-300 text-black'
-          }`}
+          className="w-full border px-3 py-2 rounded"
         />
+      </div>
 
+      <div>
+        <label className="block font-medium mb-1">Image</label>
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-          className={`w-full px-5 py-4 rounded-xl border file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold ${
-            theme === 'dark'
-              ? 'bg-gray-800 border-gray-700 text-white file:bg-blue-600 file:text-white hover:file:bg-blue-700'
-              : 'bg-gray-100 border-gray-300 text-black file:bg-blue-600 file:text-white hover:file:bg-blue-700'
-          }`}
+          onChange={(e) => setImage(e.target.files?.[0] || null)}
+          className="w-full"
         />
+      </div>
 
-        {imageFile && (
-          <img
-            src={URL.createObjectURL(imageFile)}
-            alt="Preview"
-            className="w-full max-h-[250px] object-cover rounded-xl mt-3"
-          />
-        )}
+      <div>
+        <label className="block font-medium mb-1">Description</label>
+        <WordEditor value={description} onChange={setDescription} />
+      </div>
 
-        <div className="flex justify-end gap-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className={`px-5 py-3 rounded-xl text-base font-medium border ${
-              theme === 'dark'
-                ? 'text-white border-gray-600 hover:bg-gray-700'
-                : 'text-black border-gray-300 hover:bg-gray-200'
-            }`}
-          >
-            Cancel
-          </button>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-6 py-3 rounded-xl text-base font-semibold text-white bg-blue-600 hover:bg-blue-700"
-          >
-            {loading ? 'Posting...' : 'Post Blog'}
-          </button>
-        </div>
-      </form>
-    </div>
+      <button
+        type="submit"
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+      >
+        Submit Blog
+      </button>
+    </form>
   );
 }

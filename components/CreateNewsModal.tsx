@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { X } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const WordEditor = dynamic(() => import('./WordEditor'), { ssr: false });
 
 type Props = {
   onClose: () => void;
@@ -13,7 +16,7 @@ type Props = {
     author: string;
     city: string;
     image: string;
-    content : string
+    content: string;
   };
 };
 
@@ -43,7 +46,7 @@ export default function CreateNewsModal({ onClose, onCreated, newsToEdit }: Prop
     }
   }, [imageFile]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -68,11 +71,6 @@ export default function CreateNewsModal({ onClose, onCreated, newsToEdit }: Prop
 
     const endpoint = isEdit ? `/news/${newsToEdit?._id}` : '/news/';
     const method = isEdit ? 'PATCH' : 'POST';
-
-    // ❗ Debug logs
-    console.log('🧪 Submitting:', isEdit ? 'EDIT' : 'CREATE');
-    console.log('Endpoint:', `${API_BASE}${endpoint}`);
-    console.log('ID:', newsToEdit?._id);
 
     if (isEdit && !newsToEdit?._id) {
       toast.error('❌ Invalid news ID for update.');
@@ -141,19 +139,16 @@ export default function CreateNewsModal({ onClose, onCreated, newsToEdit }: Prop
           </div>
         ))}
 
-        {/* Content Field */}
+        {/* ✅ Replaced Textarea with CKEditor */}
         <div className="col-span-1 md:col-span-2">
           <label className="block text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
             Content
           </label>
-          <textarea
-            name="content"
+          <WordEditor
             value={formData.content}
-            onChange={handleChange}
-            className="w-full border border-gray-300 dark:border-gray-600 rounded p-2 bg-transparent text-black dark:text-white"
-            placeholder="Enter news content"
-            rows={5}
-            required
+            onChange={(data) =>
+              setFormData((prev) => ({ ...prev, content: data }))
+            }
           />
         </div>
 

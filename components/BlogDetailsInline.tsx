@@ -1,30 +1,29 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useTheme } from 'next-themes';
-import type { Blog } from './BlogPosts';
-import ConfirmDialog from '@/components/ui/ConfirmDialog';
-import { toast } from 'sonner';
-import dynamic from 'next/dynamic';
+import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
+import type { Blog } from "./BlogPosts";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { toast } from "sonner";
+import dynamic from "next/dynamic";
 
-// 👉 Dynamic import to avoid SSR issues
-const EditorWithToolbar = dynamic(() => import('./EditorWithToolbar'), { ssr: false });
+const WordEditor = dynamic(() => import("./WordEditor"), { ssr: false });
 
 interface Props {
   blog: Blog;
   onClose: () => void;
-  onChange: (action: 'update' | 'delete') => void;
+  onChange: (action: "update" | "delete") => void;
 }
 
 export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
   const { theme } = useTheme();
 
   const [editMode, setEditMode] = useState(false);
-  const [title, setTitle] = useState(blog.title);
-  const [description, setDescription] = useState(blog.description);
-  const [category, setCategory] = useState(blog.category);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [previewImage, setPreviewImage] = useState(blog.image);
+  const [previewImage, setPreviewImage] = useState("");
   const [loading, setLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showUpdateConfirm, setShowUpdateConfirm] = useState(false);
@@ -39,67 +38,67 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
 
   useEffect(() => {
     return () => {
-      if (previewImage?.startsWith('blob:')) {
+      if (previewImage?.startsWith("blob:")) {
         URL.revokeObjectURL(previewImage);
       }
     };
   }, [previewImage]);
 
   const handleUpdate = async () => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) return toast.error('You are not authorized');
+    const token = localStorage.getItem("accessToken");
+    if (!token) return toast.error("You are not authorized");
 
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('category', category);
-    if (imageFile) formData.append('image', imageFile);
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("category", category);
+    if (imageFile) formData.append("image", imageFile);
 
     setLoading(true);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/blogs/${blog._id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
       const data = await res.json();
       if (data.success) {
-        toast.success('Blog updated successfully ✅');
+        toast.success("Blog updated successfully ✅");
         setEditMode(false);
-        onChange('update');
+        onChange("update");
       } else {
-        toast.error(data.message || 'Failed to update blog');
+        toast.error(data.message || "Failed to update blog");
       }
     } catch (err) {
       console.error(err);
-      toast.error('Something went wrong during update');
+      toast.error("Something went wrong during update");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) return toast.error('You are not authorized');
+    const token = localStorage.getItem("accessToken");
+    if (!token) return toast.error("You are not authorized");
 
     setLoading(true);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/blogs/${blog._id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = await res.json();
       if (data.success) {
-        toast.success('Blog deleted successfully 🗑️');
-        onChange('delete');
+        toast.success("Blog deleted successfully 🗑️");
+        onChange("delete");
       } else {
-        toast.error(data.message || 'Failed to delete blog');
+        toast.error(data.message || "Failed to delete blog");
       }
     } catch (err) {
       console.error(err);
-      toast.error('Something went wrong during delete');
+      toast.error("Something went wrong during delete");
     } finally {
       setLoading(false);
     }
@@ -115,10 +114,10 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
   };
 
   return (
-    <div className={`p-6 rounded-xl shadow border ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
+    <div className={`p-6 rounded-xl shadow border ${theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-black"}`}>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">
-          {editMode ? '✏️ Edit Blog' : blog.title}
+          {editMode ? "✏️ Edit Blog" : blog.title}
         </h2>
         <button
           onClick={onClose}
@@ -139,8 +138,7 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
               placeholder="Title"
             />
 
-            {/* 👉 EditorWithToolbar instead of textarea */}
-            <EditorWithToolbar content={description} onChange={setDescription} />
+            <WordEditor value={description} onChange={setDescription} />
 
             <input
               type="text"
@@ -156,6 +154,7 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
+                  if (previewImage?.startsWith("blob:")) URL.revokeObjectURL(previewImage);
                   setImageFile(file);
                   setPreviewImage(URL.createObjectURL(file));
                 }
@@ -179,11 +178,9 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
             <button
               onClick={() => setShowUpdateConfirm(true)}
               disabled={loading}
-              className={`px-4 py-2 rounded text-white bg-blue-600 hover:bg-blue-700 ${
-                loading ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
+              className={`px-4 py-2 rounded text-white bg-blue-600 hover:bg-blue-700 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              {loading ? 'Updating...' : 'Update'}
+              {loading ? "Updating..." : "Update"}
             </button>
           </div>
         </>
@@ -200,13 +197,13 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
           <p className="mb-2">
             📂 <span className="font-medium">Category:</span> {blog.category}
           </p>
-          <p className="whitespace-pre-wrap">{blog.description}</p>
+          <div
+            className="prose dark:prose-invert max-w-none"
+            dangerouslySetInnerHTML={{ __html: blog.description }}
+          />
 
           <div className="flex justify-end gap-3 mt-4">
-            <button
-              onClick={() => setEditMode(true)}
-              className="px-4 py-2 border rounded"
-            >
+            <button onClick={() => setEditMode(true)} className="px-4 py-2 border rounded">
               ✏️ Edit
             </button>
             <button
@@ -214,13 +211,12 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
               disabled={loading}
               className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             >
-              {loading ? 'Deleting...' : '🗑️ Delete'}
+              {loading ? "Deleting..." : "🗑️ Delete"}
             </button>
           </div>
         </>
       )}
 
-      {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         open={showDeleteConfirm}
         onCancel={() => setShowDeleteConfirm(false)}
@@ -234,7 +230,6 @@ export default function BlogDetailsInline({ blog, onClose, onChange }: Props) {
         cancelText="Cancel"
       />
 
-      {/* Update Confirmation Dialog */}
       <ConfirmDialog
         open={showUpdateConfirm}
         onCancel={() => setShowUpdateConfirm(false)}
