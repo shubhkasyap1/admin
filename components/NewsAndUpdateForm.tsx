@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { toast } from 'sonner';
 import { NewsAndUpdate } from './NewsAndUpdate';
 
@@ -11,6 +12,9 @@ interface NewsFormProps {
 }
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+// Dynamically import CKEditor or any WordEditor
+const WordEditor = dynamic(() => import('./WordEditor'), { ssr: false });
 
 export default function NewsAndUpdateForm({ existing, onClose, onSuccess }: NewsFormProps) {
   const [title, setTitle] = useState(existing?.title || '');
@@ -80,13 +84,7 @@ export default function NewsAndUpdateForm({ existing, onClose, onSuccess }: News
 
       <div>
         <label className="block mb-1 font-medium">Text</label>
-        <textarea
-          rows={4}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="w-full px-3 py-2 rounded border dark:bg-gray-800"
-          required
-        />
+        <WordEditor value={text} onChange={setText} />
       </div>
 
       <div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import WordEditor from "@/components/WordEditor";
 
 type FeaturedPost = {
   _id: string;
@@ -33,7 +34,6 @@ export default function FeaturedPostForm({ existing, onClose, onSuccess }: Props
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
   const isEdit = !!existing;
 
-  // Preview selected image
   useEffect(() => {
     if (imageFile) {
       const reader = new FileReader();
@@ -44,7 +44,7 @@ export default function FeaturedPostForm({ existing, onClose, onSuccess }: Props
     }
   }, [imageFile]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -134,15 +134,13 @@ export default function FeaturedPostForm({ existing, onClose, onSuccess }: Props
             required
           />
 
-          <textarea
-            name="description"
-            placeholder="Description"
+          {/* ⬇️ WordEditor integrated here */}
+          <WordEditor
             value={formData.description}
-            onChange={handleChange}
-            className="w-full border p-2 rounded bg-transparent dark:border-gray-600"
-            rows={4}
-            required
-          ></textarea>
+            onChange={(val: string) =>
+              setFormData((prev) => ({ ...prev, description: val }))
+            }
+          />
 
           <input
             type="file"
